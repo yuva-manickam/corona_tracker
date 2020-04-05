@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.vyb.coronatracker.models.LocationStats;
@@ -29,6 +30,7 @@ public class CoronaVirusService {
 	}
 	
 	@PostConstruct
+	@Scheduled(cron = "* 0/30 * * * *")
 	public void fetchVirusData() throws IOException, InterruptedException {
 		
 		List<LocationStats> newStats = new ArrayList<>();
@@ -40,22 +42,24 @@ public class CoronaVirusService {
 		
 		StringReader csvBodyReader = new StringReader(httpResponse.body());
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
-		System.out.println("record size=>"+records.toString().isEmpty());
+//		System.out.println("record size=>"+records.toString().isEmpty());
+//		System.out.println("record TEST=>"+records.toString().isEmpty());
+		System.out.println("================================================="+System.currentTimeMillis());
 		for (CSVRecord csvRecord : records) {
-			System.out.println("csv =>"+csvRecord);
+//			System.out.println("csv =>"+csvRecord);
 			LocationStats location = new LocationStats();
 			location.setState(csvRecord.get(0));
 			location.setCountry(csvRecord.get(1));
 			
 			String csvrec1 = csvRecord.get(csvRecord.size()-1).trim();
-			System.out.println("csvrec1=>"+csvrec1);
+//			System.out.println("csvrec1=>"+csvrec1);
 			if ("".equals(csvrec1)) {
 				csvrec1 = "0";
 				
 			}
 			
 			String csvrec2 = csvRecord.get(csvRecord.size()-2).trim();
-			System.out.println("csvrec2=>"+csvrec2);
+//			System.out.println("csvrec2=>"+csvrec2);
 			if ("".equals(csvrec2)) {
 				csvrec2 = "0";
 			}
@@ -65,18 +69,12 @@ public class CoronaVirusService {
 			location.setTotalCases(latestCases);
 			location.setDiffFromPrevious(latestCases - previousCases);
 			//System.out.println(location);
-			newStats.add(location);
+			if (!csvrec1.equals("0")) {
+				newStats.add(location);
+			}
+			
 		}
 		this.allStats = newStats;
-		//System.out.println(httpResponse.body());
 	}
-	/*
-	 * 
-	 * public static void main(String[] args) throws IOException,
-	 * InterruptedException {
-	 * 
-	 * CoronaVirusService coronaVirusService = new CoronaVirusService();
-	 * coronaVirusService.fetchVirusData(); }
-	 */
 
 }
