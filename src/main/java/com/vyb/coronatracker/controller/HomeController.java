@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.vyb.coronatracker.models.LocationStats;
 import com.vyb.coronatracker.services.CoronaVirusService;
 
-@Controller
+@Controller("/coronatracker")
 public class HomeController {
 	
 	@Autowired
 	CoronaVirusService coronoVirusService;
 	
-	@GetMapping("/coronatracker")
+	@GetMapping("/")
 	public String home(Model model) {
 		List<LocationStats> allStats = coronoVirusService.getAllStats();
 		int totlaCasesGlobe = allStats.stream().mapToInt(stat -> stat.getTotalCases()).sum();
